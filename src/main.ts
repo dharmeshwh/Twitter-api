@@ -1,13 +1,40 @@
-// app.ts
-import express, { Request, Response } from "express";
+import "reflect-metadata";
 
-const app = express();
-const port = 3000;
+import dotenv from "dotenv";
+import * as http from "http";
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello TypeScript Express!");
-});
+import app from "./app";
+import { dataSource } from "./typeorm/configs/data-source";
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
+dotenv.config({ path: "../.env " });
+
+const main = async () => {
+  const PORT = process.env.PORT;
+
+  // init database
+  const database = await dataSource.initialize();
+
+  const server = http.createServer(app);
+
+  // Start the server
+  server.listen(PORT, async () => {
+    console.info(`listening on port ${PORT}`);
+  });
+
+  // Event handler for server errors
+  server.on("error", async (err) => {
+    if (err) {
+      console.error("Server crashed while listening", err);
+      await database.destroy();
+      throw err;
+    }
+  });
+
+  // Event handler for server close
+  server.on("close", async () => {
+    console.warn("Closing server connection");
+    await database.destroy();
+  });
+};
+
+main();
