@@ -16,10 +16,10 @@ class CustomValidationClass {
       });
   }
 
-  getJwtToken(userId: string) {
+  getJwtToken(userUuid: string) {
     const jwtSecret = process.env.JWT_SECRET || "";
-    return jwt.sign({ userId }, jwtSecret, {
-      expiresIn: 365,
+    return jwt.sign({ userUuid }, jwtSecret, {
+      expiresIn: 60 * 60 * 24 * 365,
     });
   }
 }

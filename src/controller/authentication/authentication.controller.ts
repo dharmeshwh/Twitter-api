@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
 import CustomValidation from "../../utils/custom-validation";
 import { UserProfileEntity } from "../../typeorm/entities/user.entity";
+import { cookieKeyName } from "../../utils/common.utils";
 
 class AuthController {
   /**
@@ -94,8 +95,12 @@ class AuthController {
       // Generate a JWT token for authentication
       const token = CustomValidation.getJwtToken(user.uuid);
 
-      // Return the success response with the token
-      return response.status(StatusCodes.OK).send({ status: true, token });
+      return response.cookie(cookieKeyName, String(token), {
+        signed: true,
+        sameSite: "none",
+        secure: true,
+        httpOnly: true,
+      });
     } catch (error: Error | any) {
       return response
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
