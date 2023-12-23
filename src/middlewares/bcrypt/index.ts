@@ -9,7 +9,7 @@ const hashPassword = async (
   next: NextFunction
 ) => {
   try {
-    let { password } = request.body;
+    const { password } = request.body;
     // Hash the password using bcrypt with a cost factor of 10
     request.body.password = await bcrypt.hash(password, 10);
     next();

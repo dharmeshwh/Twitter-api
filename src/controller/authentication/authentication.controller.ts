@@ -33,7 +33,7 @@ class AuthController {
 
       // Create a new UserProfile instance and set its properties
       const user = new UserProfileEntity();
-      user.firstname = firstName;
+      user.firstName = firstName;
       user.lastName = lastName;
       user.email = email;
       user.password = password;
@@ -49,7 +49,7 @@ class AuthController {
     } catch (error: Error | any) {
       return response
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .send({ status: true, message: error.message });
+        .send({ status: false, message: error.message });
     }
   }
 
@@ -95,12 +95,17 @@ class AuthController {
       // Generate a JWT token for authentication
       const token = CustomValidation.getJwtToken(user.uuid);
 
-      return response.cookie(cookieKeyName, String(token), {
-        signed: true,
-        sameSite: "none",
-        secure: true,
-        httpOnly: true,
-      });
+      return response
+        .cookie(cookieKeyName, String(token), {
+          signed: true,
+          sameSite: "none",
+          secure: true,
+          httpOnly: true,
+        })
+        .status(StatusCodes.OK)
+        .send({
+          status: true,
+        });
     } catch (error: Error | any) {
       return response
         .status(StatusCodes.INTERNAL_SERVER_ERROR)

@@ -1,1 +1,1 @@
-export const cookieKeyName = "cookieSecret";
+export const cookieKeyName = "AUTH_COOKIES";

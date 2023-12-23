@@ -7,8 +7,10 @@ profileRoute.get("/", profileController.getUserProfile);
 
 profileRoute.get("/followers", profileController.getAllFollowers);
 
-profileRoute.post("/follow", profileController.followUser);
+profileRoute.post("/follow/:uuid", profileController.followUser);
 
-profileRoute.put("/unfollow", profileController.unFollowUser);
+profileRoute.put("/unfollow/:uuid", profileController.unFollowUser);
+
+profileRoute.get("/users", profileController.getUsersToFollow);
 
 export = profileRoute;

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import { In, Not } from "typeorm";
 import { IVerifyTokenResponse } from "../../middlewares/token-handler";
 import { FollowersEntity } from "../../typeorm/entities/followers.entity";
 import { UserProfileEntity } from "../../typeorm/entities/user.entity";
@@ -13,7 +14,7 @@ class ProfileController {
         where: {
           uuid: userUuid,
         },
-        select: ["email", "firstname", "lastName", "username", "email", "uuid"],
+        select: ["email", "firstName", "lastName", "username", "email", "uuid"],
       });
 
       if (!user) {
@@ -24,7 +25,7 @@ class ProfileController {
       }
 
       return response.status(StatusCodes.OK).send({
-        status: false,
+        status: true,
         data: user,
       });
     } catch (error: any) {
@@ -42,6 +43,7 @@ class ProfileController {
       const followers = await FollowersEntity.find({
         where: {
           userUuid,
+          followerUuid: Not(In([userUuid])),
         },
       });
 
@@ -60,7 +62,7 @@ class ProfileController {
   async followUser(request: Request, response: Response) {
     try {
       const { userUuid } = request[`user`] as IVerifyTokenResponse;
-      const { uuid } = request.body;
+      const { uuid } = request.params;
 
       const isUserExist = await UserProfileEntity.findOne({
         where: { uuid },
@@ -74,7 +76,7 @@ class ProfileController {
         });
       }
 
-      const isAlreadyFollowing = await FollowersEntity.find({
+      const isAlreadyFollowing = await FollowersEntity.findOne({
         where: {
           userUuid,
           followerUuid: uuid,
@@ -97,7 +99,7 @@ class ProfileController {
 
       return response.status(StatusCodes.OK).send({
         status: true,
-        message: "you have started following the user!",
+        message: "you started following the user!",
       });
     } catch (error: any) {
       return response.status(StatusCodes.BAD_REQUEST).send({
@@ -110,7 +112,7 @@ class ProfileController {
   async unFollowUser(request: Request, response: Response) {
     try {
       const { userUuid } = request[`user`] as IVerifyTokenResponse;
-      const { uuid } = request.body;
+      const { uuid } = request.params;
 
       const isUserExist = await UserProfileEntity.findOne({
         where: { uuid },
@@ -124,7 +126,7 @@ class ProfileController {
         });
       }
 
-      const isAlreadyFollowing = await FollowersEntity.find({
+      const isAlreadyFollowing = await FollowersEntity.findOne({
         where: {
           userUuid,
           followerUuid: uuid,
@@ -140,12 +142,53 @@ class ProfileController {
       }
 
       await FollowersEntity.delete({
-        uuid,
+        followerUuid: uuid,
+        userUuid,
       });
 
       return response.status(StatusCodes.OK).send({
         status: true,
-        message: "unfollowed user!",
+        message: "user unfollowed!",
+      });
+    } catch (error: any) {
+      return response.status(StatusCodes.BAD_REQUEST).send({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
+  async getUsersToFollow(request: Request, response: Response) {
+    try {
+      const { userUuid } = request[`user`] as IVerifyTokenResponse;
+      const { page = 1 } = request.query;
+
+      const take = 50;
+      const offset = (Number(page) - 1) * take;
+
+      const users = await UserProfileEntity.createQueryBuilder("user")
+        .leftJoin("user.follower", "follower")
+        .select([
+          "user.firstName",
+          "user.lastName",
+          "user.username",
+          "user.email",
+          "user.uuid",
+        ])
+        .where("user.uuid != :userUuid", { userUuid })
+        .andWhere(
+          "follower.userUuid IS NULL OR follower.userUuid != :userUuid",
+          {
+            userUuid,
+          }
+        )
+        .take(take)
+        .skip(offset)
+        .getMany();
+
+      return response.status(StatusCodes.OK).send({
+        status: true,
+        data: users,
       });
     } catch (error: any) {
       return response.status(StatusCodes.BAD_REQUEST).send({

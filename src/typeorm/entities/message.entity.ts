@@ -4,15 +4,17 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
-  OneToOne,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { UserProfileEntity } from "./user.entity";
 
-@Entity("followers_entity")
-export class FollowersEntity extends BaseEntity {
+@Entity("message_entity")
+export class MessageEntity extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   uuid: string;
 
@@ -28,10 +30,10 @@ export class FollowersEntity extends BaseEntity {
   @Column({ name: "user_uuid", type: "uuid" })
   userUuid: string;
 
-  @Column({ name: "follower_uuid", type: "uuid" })
-  followerUuid: string;
+  @Column({ name: "content" })
+  content: string;
 
-  @OneToOne(() => UserProfileEntity, (profile) => profile.follower)
-  @JoinColumn({ name: "follower_uuid", referencedColumnName: "uuid" })
-  public profile: UserProfileEntity;
+  @ManyToOne(() => UserProfileEntity, (userProfile) => userProfile.messages)
+  @JoinColumn({ name: "user_uuid", referencedColumnName: "uuid" })
+  public userProfile: UserProfileEntity; // Define the many-to-one relationship
 }

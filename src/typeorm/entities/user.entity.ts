@@ -5,9 +5,14 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { FollowersEntity } from "./followers.entity";
+import { MessageEntity } from "./message.entity";
 
 @Entity("user_profile_entity")
 export class UserProfileEntity extends BaseEntity {
@@ -28,7 +33,7 @@ export class UserProfileEntity extends BaseEntity {
     type: "varchar",
     length: 36,
   })
-  firstname: string;
+  firstName: string;
 
   @Column({
     name: "last_name",
@@ -59,4 +64,10 @@ export class UserProfileEntity extends BaseEntity {
     length: 100,
   })
   password: string;
+
+  @OneToOne(() => FollowersEntity, (follower) => follower.profile)
+  public follower: FollowersEntity;
+
+  @OneToMany(() => MessageEntity, (message) => message.userProfile)
+  public messages: MessageEntity[];
 }
