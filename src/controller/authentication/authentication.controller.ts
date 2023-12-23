@@ -30,7 +30,10 @@ class AuthController {
       if (isUserAlreadyExists) {
         return response
           .status(StatusCodes.BAD_REQUEST)
-          .send({ status: true, message: "username or email already exists!" });
+          .send({
+            status: false,
+            message: "username or email already exists!",
+          });
       }
 
       // Create a new UserProfile instance and set its properties

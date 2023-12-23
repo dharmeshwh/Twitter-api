@@ -33,7 +33,7 @@ export const tokenHandler = async (
     const token = request.signedCookies[cookieKeyName];
 
     if (!token) {
-      throw new Error("token not found");
+      throw new Error("cookies not found");
     }
 
     const { userUuid } = await verifyToken(token);
