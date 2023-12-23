@@ -107,9 +107,6 @@ class AuthController {
       return response
         .cookie(cookieKeyName, String(token), {
           signed: true,
-          sameSite: "none",
-          secure: true,
-          httpOnly: true,
         })
         .status(StatusCodes.OK)
         .send({
