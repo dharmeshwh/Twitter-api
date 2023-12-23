@@ -5,10 +5,12 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { MessageEntity } from "./message.entity";
 import { UserProfileEntity } from "./user.entity";
 
 @Entity("followers_entity")
@@ -34,4 +36,7 @@ export class FollowersEntity extends BaseEntity {
   @OneToOne(() => UserProfileEntity, (profile) => profile.follower)
   @JoinColumn({ name: "follower_uuid", referencedColumnName: "uuid" })
   public profile: UserProfileEntity;
+
+  @OneToMany(() => MessageEntity, (message) => message.follower)
+  messages: MessageEntity[];
 }

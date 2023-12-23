@@ -4,6 +4,8 @@ import bcrypt from "bcrypt";
 import CustomValidation from "../../utils/custom-validation";
 import { UserProfileEntity } from "../../typeorm/entities/user.entity";
 import { cookieKeyName } from "../../utils/common.utils";
+import { FollowersEntity } from "../../typeorm/entities/followers.entity";
+import { randomUUID } from "crypto";
 
 class AuthController {
   /**
@@ -38,6 +40,13 @@ class AuthController {
       user.email = email;
       user.password = password;
       user.username = username;
+      user.uuid = randomUUID();
+
+      const follower = new FollowersEntity();
+      follower.userUuid = user.uuid;
+      follower.followerUuid = user.uuid;
+
+      await follower.save();
 
       // Save the new user profile to the database
       const userDetails = await profileRepo.save(user);

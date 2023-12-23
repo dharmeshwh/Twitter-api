@@ -167,7 +167,7 @@ class ProfileController {
       const offset = (Number(page) - 1) * take;
 
       const users = await UserProfileEntity.createQueryBuilder("user")
-        .leftJoin("user.follower", "follower")
+        .where("user.uuid != :userUuid", { userUuid })
         .select([
           "user.firstName",
           "user.lastName",
@@ -175,7 +175,7 @@ class ProfileController {
           "user.email",
           "user.uuid",
         ])
-        .where("user.uuid != :userUuid", { userUuid })
+        .leftJoin("user.follower", "follower")
         .andWhere(
           "follower.userUuid IS NULL OR follower.userUuid != :userUuid",
           {

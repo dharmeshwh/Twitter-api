@@ -1,13 +1,31 @@
 import { Router } from "express";
 import { messageController } from "../../controller/message/message.controller";
+import { validate } from "../../middlewares/validator";
+import {
+  commonUuidBodyContract,
+  postMessageContract,
+  updateMessageContract,
+} from "./message.contract";
 
 const messagesRoute = Router();
 
-messagesRoute.post("/", messageController.postMessage);
+messagesRoute.post(
+  "/",
+  validate(postMessageContract),
+  messageController.postMessage
+);
 
-messagesRoute.delete("/", messageController.deleteMessage);
+messagesRoute.delete(
+  "/",
+  validate(commonUuidBodyContract),
+  messageController.deleteMessage
+);
 
-messagesRoute.put("/", messageController.updateMessage);
+messagesRoute.put(
+  "/",
+  validate(updateMessageContract),
+  messageController.updateMessage
+);
 
 messagesRoute.get("/", messageController.getAllMessages);
 
